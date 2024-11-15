@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, must_be_immutable
 
 import 'package:flutter/material.dart';
 
@@ -21,16 +21,25 @@ class CustomDropdown extends StatefulWidget {
 
 class _CustomDropdownState extends State<CustomDropdown> {
   @override
+  void initState() {
+    super.initState();
+    widget.new_dropdown_item_controller.text = widget.selectedvalue ?? '';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SizedBox(
           height: 50,
-          width: 100,
+          width: 90,
           child: TextField(
+              textAlign: TextAlign.start,
               decoration: InputDecoration(
-                hintText: widget.selectedvalue,
-              ),
+                  hintText: widget.selectedvalue,
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Theme.of(context).primaryColor))),
               controller: widget.new_dropdown_item_controller,
               onSubmitted: widget.onTextChanged),
         ),
@@ -41,9 +50,13 @@ class _CustomDropdownState extends State<CustomDropdown> {
             }).toList(),
             onChanged: (String? newValue) {
               setState(() {
-                widget.onTextChanged(newValue!);
-                widget.new_dropdown_item_controller.text = newValue;
+                widget.selectedvalue = newValue;
+
+                widget.new_dropdown_item_controller.text = newValue ?? "";
               });
+              if (newValue != null) {
+                widget.onTextChanged(newValue);
+              }
             }),
       ],
     );

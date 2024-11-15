@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, prefer_const_literals_to_create_immutables, prefer_const_constructors
+
 import 'package:fitness/models/item_model.dart';
 import 'package:fitness/widgets/dialog_box.dart';
 import 'package:flutter/material.dart';
@@ -5,9 +7,14 @@ import 'package:flutter/material.dart';
 class ItemContainer extends StatelessWidget {
   final Item_Model item;
   final VoidCallback addToCart;
+  final VoidCallback deleteItem;
   int? index;
   ItemContainer(
-      {super.key, required this.item, required this.addToCart, this.index});
+      {super.key,
+      required this.item,
+      required this.addToCart,
+      this.index,
+      required this.deleteItem});
 
   @override
   Widget build(BuildContext context) {
@@ -29,28 +36,77 @@ class ItemContainer extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name),
+                SizedBox(
+                  width: 80,
+                  child: Text(
+                    item.name,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).primaryColor),
+                  ),
+                ),
                 Text("${item.quantity}pcs"),
                 Text(item.location)
               ],
             ),
-            ElevatedButton(onPressed: addToCart, child: const Text("Add")),
-            ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DialogBox(
-                          name: item.name,
-                          price: item.price,
-                          quantity: item.quantity,
-                          selectedlocation: item.location,
-                          selectedpriority: item.priority,
-                          index: index,
-                        );
-                      });
-                },
-                child: const Text("Edit")),
+            Row(
+              children: [
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0))),
+                    onPressed: addToCart,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(
+                          Icons.shopping_cart,
+                        ),
+                        SizedBox(
+                          width: 4,
+                        ),
+                        const Text("Add"),
+                      ],
+                    )),
+                SizedBox(
+                  width: 10,
+                ),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0))),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DialogBox(
+                              item: item,
+                              name: item.name,
+                              toIdentify: item.name,
+                              price: item.price,
+                              quantity: item.quantity,
+                              quantitytoBuy: item.quantitytoBuy,
+                              selectedlocation: item.location,
+                              selectedpriority: item.priority,
+                              index: index,
+                            );
+                          });
+                    },
+                    child: const Text("Edit")),
+                SizedBox(
+                  width: 10,
+                ),
+                IconButton(
+                  onPressed: deleteItem,
+                  icon: Icon(Icons.delete),
+                  color: Theme.of(context).primaryColor,
+                )
+              ],
+            ),
           ],
         ),
       ),

@@ -1,12 +1,12 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:fitness/hive/hive_data_notifier.dart';
 import 'package:fitness/models/item_model.dart';
-import 'package:fitness/models/itemlist_model.dart';
 import 'package:fitness/widgets/add_button.dart';
 import 'package:fitness/widgets/inventory_item_container.dart';
-import 'package:fitness/widgets/locations_list.dart';
 import 'package:fitness/widgets/searchbar.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
@@ -20,23 +20,24 @@ class InventoryPage extends StatefulWidget {
 class _InventoryPageState extends State<InventoryPage> {
   @override
   Widget build(BuildContext context) {
-    //Fetch itemlist from provider
-    List<Item_Model> itemlist =
-        Provider.of<ItemlistModel>(context).filteredItems;
-    List<String> locations = Provider.of<ItemlistModel>(context).locationsList;
-
     void addToCart(Item_Model item) {
-      List<Item_Model> shoppingList =
-          Provider.of<ItemlistModel>(context, listen: false).shoppingItems;
-      if (!shoppingList.contains(item)) {
-        Provider.of<ItemlistModel>(context, listen: false)
-            .addtoShoppingList(item);
-      }
+      Provider.of<HiveDataNotifier>(context, listen: false)
+          .addToShoppingList(item, item.id);
     }
+
+    void deleteItem(int index) {
+      Provider.of<HiveDataNotifier>(context, listen: false).delete(index);
+    }
+
+    //get box conaining all items
+    Box box = Provider.of<HiveDataNotifier>(context, listen: false).getBox;
+    List<String> locations =
+        Provider.of<HiveDataNotifier>(context, listen: false).locations;
 
     return Scaffold(
         backgroundColor: Colors.white,
-        body: Consumer<ItemlistModel>(builder: (context, ItemlistModel, child) {
+        body:
+            Consumer<HiveDataNotifier>(builder: (context, hiveNotifier, child) {
           return Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
@@ -44,10 +45,10 @@ class _InventoryPageState extends State<InventoryPage> {
                 SizedBox(
                   height: 8,
                 ),
-                SizedBox(
+                /* SizedBox(
                     height: 40,
                     width: double.infinity,
-                    child: LocationsList(locations: locations)),
+                    child: LocationsList(locations: locations)), */
                 SizedBox(
                   height: 20,
                 ),
@@ -59,17 +60,19 @@ class _InventoryPageState extends State<InventoryPage> {
                   child: SizedBox(
                       width: double.infinity,
                       child: ListView.separated(
+                          reverse: true,
                           separatorBuilder: (context, index) {
                             return SizedBox(
                               height: 32,
                             );
                           },
-                          itemCount: itemlist.length,
+                          itemCount: box.length,
                           itemBuilder: (context, index) {
                             return ItemContainer(
-                              item: itemlist[index],
+                              item: box.getAt(index),
+                              deleteItem: () => deleteItem(index),
                               index: index,
-                              addToCart: () => addToCart(itemlist[index]),
+                              addToCart: () => addToCart(box.getAt(index)),
                             );
                           })),
                 ),

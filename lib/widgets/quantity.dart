@@ -17,18 +17,18 @@ class Quantity extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(
-            color: Colors.grey.withOpacity(.5),
-            offset: Offset(.5, .5),
-            spreadRadius: .5,
+            color: Colors.grey.withOpacity(.1),
+            offset: Offset(.3, .3),
+            spreadRadius: .3,
             blurRadius: 2)
       ]),
       child: Row(
         children: [
           Container(
-            height: 25,
+            height: 22,
             width: 25,
             decoration: BoxDecoration(
-                color: Color(0xffFF6315),
+                color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(4),
                     bottomLeft: Radius.circular(4))),
@@ -46,7 +46,7 @@ class Quantity extends StatelessWidget {
             ),
           ),
           SizedBox(
-              width: 50,
+              width: 30,
               child: TextField(
                 textAlign: TextAlign.center,
                 controller: quantityController..text = quantity.toString(),
@@ -58,10 +58,10 @@ class Quantity extends StatelessWidget {
                     border: InputBorder.none),
               )),
           Container(
-            height: 25,
+            height: 22,
             width: 25,
             decoration: BoxDecoration(
-                color: Color(0xffFF6315),
+                color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.only(
                     topRight: Radius.circular(4),
                     bottomRight: Radius.circular(4))),

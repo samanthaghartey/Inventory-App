@@ -23,13 +23,16 @@ class ItemModelAdapter extends TypeAdapter<Item_Model> {
       location: fields[4] as String,
       priority: fields[5] as String,
       type: fields[6] as String,
-    )..quantitytoBuy = fields[2] as int;
+      id: fields[7] as int,
+      isInShoppingCart: fields[9] as bool,
+      quantitytoBuy: fields[2] as int,
+    );
   }
 
   @override
   void write(BinaryWriter writer, Item_Model obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -43,7 +46,13 @@ class ItemModelAdapter extends TypeAdapter<Item_Model> {
       ..writeByte(5)
       ..write(obj.priority)
       ..writeByte(6)
-      ..write(obj.type);
+      ..write(obj.type)
+      ..writeByte(7)
+      ..write(obj.id)
+      ..writeByte(9)
+      ..write(obj.isInShoppingCart)
+      ..writeByte(8)
+      ..write(obj.priceToBuy);
   }
 
   @override

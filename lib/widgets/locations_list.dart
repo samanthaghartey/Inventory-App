@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:fitness/models/itemlist_model.dart';
+import 'package:fitness/hive/hive_data_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LocationsList extends StatefulWidget {
-  final List locations;
+  final List<String> locations;
   const LocationsList({super.key, required this.locations});
 
   @override
@@ -23,7 +23,7 @@ class _LocationsListState extends State<LocationsList> {
       children: [
         GestureDetector(
           onTap: () {
-            Provider.of<ItemlistModel>(context, listen: false)
+            Provider.of<HiveDataNotifier>(context, listen: false)
                 .filteredList("All");
             setState(() {
               selectedIndex = -1;
@@ -33,7 +33,7 @@ class _LocationsListState extends State<LocationsList> {
             height: 40,
             padding: EdgeInsets.only(left: 20, right: 20),
             decoration: BoxDecoration(
-                color: showAll ? const Color(0xffFF6315) : Colors.white,
+                color: showAll ? Theme.of(context).primaryColor : Colors.white,
                 borderRadius: BorderRadius.circular(4),
                 boxShadow: [
                   if (!showAll)
@@ -69,7 +69,7 @@ class _LocationsListState extends State<LocationsList> {
                 bool isActive = selectedIndex == index;
                 return GestureDetector(
                   onTap: () {
-                    Provider.of<ItemlistModel>(context, listen: false)
+                    Provider.of<HiveDataNotifier>(context, listen: false)
                         .filteredList(widget.locations[index]);
                     setState(() {
                       selectedIndex = index;
@@ -78,7 +78,9 @@ class _LocationsListState extends State<LocationsList> {
                   child: Container(
                     padding: EdgeInsets.only(left: 20, right: 20),
                     decoration: BoxDecoration(
-                        color: isActive ? Color(0xffFF6315) : Colors.white,
+                        color: isActive
+                            ? Theme.of(context).primaryColor
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(4),
                         boxShadow: [
                           if (!isActive)

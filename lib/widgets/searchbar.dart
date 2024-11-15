@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:fitness/models/item_model.dart';
 import 'package:fitness/models/itemlist_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +17,7 @@ class Searchbar extends StatelessWidget {
             Provider.of<ItemlistModel>(context, listen: false)
                 .searchList(value);
           },
-          cursorColor: Color(0xffFF6315),
+          cursorColor: Theme.of(context).primaryColor,
           decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius:
@@ -27,11 +26,13 @@ class Searchbar extends StatelessWidget {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Color(0xffFF6315), width: .7),
+                borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor, width: .7),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Color(0xffFF6315), width: .7),
+                borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor, width: .7),
               ),
               fillColor: Colors.white,
               filled: true,

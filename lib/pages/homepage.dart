@@ -26,8 +26,8 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: SizedBox(
           width: 50,
           child: TabBar(
-              labelColor: Color(0xffFF6315),
-              indicatorColor: Color(0xffFF6315),
+              labelColor: Theme.of(context).primaryColor,
+              indicatorColor: Theme.of(context).primaryColor,
               tabs: [
                 Tab(
                   text: "Inventory",

@@ -1,15 +1,16 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:fitness/hive/hive_data_notifier.dart';
 import 'package:fitness/models/item_model.dart';
-import 'package:fitness/models/itemlist_model.dart';
 import 'package:fitness/widgets/quantity.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ShoppingItemContainer extends StatefulWidget {
   final Item_Model item;
+  int index;
 
-  const ShoppingItemContainer({super.key, required this.item});
+  ShoppingItemContainer({super.key, required this.item, required this.index});
 
   @override
   State<ShoppingItemContainer> createState() => _ShoppingItemContainerState();
@@ -17,6 +18,10 @@ class ShoppingItemContainer extends StatefulWidget {
 
 class _ShoppingItemContainerState extends State<ShoppingItemContainer> {
   final TextEditingController quantityController = TextEditingController();
+  void deleteFromShoppingList(Item_Model item) {
+    Provider.of<HiveDataNotifier>(context, listen: false)
+        .deleteFromShoppingList(item, item.id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +36,8 @@ class _ShoppingItemContainerState extends State<ShoppingItemContainer> {
           quantity -= 1;
         }
       });
-      Provider.of<ItemlistModel>(context, listen: false)
-          .changeQuantityOfShoppingItem(widget.item, quantity);
+      Provider.of<HiveDataNotifier>(context, listen: false)
+          .changeQuantityOfShoppingItem(widget.item, widget.item.id, quantity);
     }
 
     return Container(
@@ -46,7 +51,7 @@ class _ShoppingItemContainerState extends State<ShoppingItemContainer> {
                 color: Colors.black.withOpacity(.3))
           ]),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(10.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -68,12 +73,12 @@ class _ShoppingItemContainerState extends State<ShoppingItemContainer> {
                 Text(
                   "Price",
                   style: TextStyle(
-                    color: Colors.orange,
+                    color: Theme.of(context).primaryColor,
                     fontSize: 12,
                   ),
                 ),
                 Container(
-                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
                         color: Colors.white,
@@ -84,13 +89,33 @@ class _ShoppingItemContainerState extends State<ShoppingItemContainer> {
                               spreadRadius: .5,
                               blurRadius: 2)
                         ]),
-                    child: Text("${quantity * price}kr")),
+                    child: Text(
+                      "${quantity * price}kr",
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    )),
               ],
-            )
+            ),
+            IconButton(
+                style: IconButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                ),
+                onPressed: () => deleteFromShoppingList(widget.item),
+                icon: /* Text(
+                  "Remove Item",
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: 13,
+                  ),
+                ) */
+                    Icon(
+                  Icons.remove_shopping_cart,
+                  color: Theme.of(context).primaryColor,
+                ))
           ],
         ),
       ),
     );
-    ;
   }
 }

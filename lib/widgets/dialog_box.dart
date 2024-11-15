@@ -1,27 +1,34 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:fitness/hive/hive_data_notifier.dart';
 import 'package:fitness/models/item_model.dart';
-import 'package:fitness/models/itemlist_model.dart';
 import 'package:fitness/widgets/custom_dropdown.dart';
 import 'package:fitness/widgets/quantity.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 
 class DialogBox extends StatefulWidget {
   final String name;
+  final String? toIdentify;
   final String selectedpriority;
   final double price;
   final String selectedlocation;
   final int quantity;
+  final int? quantitytoBuy;
   final int? index;
+  final Item_Model? item;
 
-  DialogBox(
+  const DialogBox(
       {super.key,
       this.name = "",
+      this.item,
       this.selectedlocation = "Bathroom",
       this.selectedpriority = "Essential",
       this.price = 0,
       this.index,
+      this.toIdentify,
+      this.quantitytoBuy,
       this.quantity = 1});
 
   @override
@@ -30,11 +37,15 @@ class DialogBox extends StatefulWidget {
 
 class _DialogBoxState extends State<DialogBox> {
   late String name;
+  late String? toIdentify;
   late String selectedpriority;
   late double price;
   late String selectedlocation;
   late int quantity;
+  late int? quantitytoBuy;
   late int? index;
+  late Item_Model? item;
+
   // Controllers for text fields
   final TextEditingController nameController = TextEditingController();
   final TextEditingController locationsController = TextEditingController();
@@ -42,15 +53,29 @@ class _DialogBoxState extends State<DialogBox> {
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController prioritycontroller = TextEditingController();
 
+//SHOW SNACKBAR
+  void _showSnackBar(BuildContext context, String name) {
+    final snackBar = SnackBar(
+      content: Text('The item $name is already in your inventory :)'),
+      duration: Duration(seconds: 2),
+      backgroundColor: Theme.of(context).primaryColor,
+      behavior: SnackBarBehavior.floating,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   void initState() {
     super.initState();
     name = widget.name;
+    toIdentify = widget.toIdentify;
     selectedpriority = widget.selectedpriority;
     price = widget.price;
     selectedlocation = widget.selectedlocation;
     quantity = widget.quantity;
+    quantitytoBuy = widget.quantitytoBuy;
     index = widget.index;
+    item = widget.item;
 
     nameController.text = name;
     priceController.text = price.toString();
@@ -78,126 +103,183 @@ class _DialogBoxState extends State<DialogBox> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> locations = Provider.of<ItemlistModel>(context).locationsList;
-    List<String> priorities = Provider.of<ItemlistModel>(context).priorityList;
+    List<String> locations = Provider.of<HiveDataNotifier>(context).locations;
+    List<String> priorities = Provider.of<HiveDataNotifier>(context).priorities;
+    int boxLength = Provider.of<HiveDataNotifier>(context).getBox.length;
+    Box box = Provider.of<HiveDataNotifier>(context).getBox;
+    List<String> names = box.values.map((item) => item.name as String).toList();
 
     void onchangeLocation(String location) {
       location = location.replaceFirst(location[0], location[0].toUpperCase());
-      Provider.of<ItemlistModel>(context, listen: false).addLocation(location);
-      selectedlocation = location;
+      Provider.of<HiveDataNotifier>(context, listen: false)
+          .addLocation(location);
+
+      setState(() {
+        selectedlocation = location;
+      });
       locationsController.clear();
     }
 
     void onchangePriority(String priority) {
-      Provider.of<ItemlistModel>(context, listen: false).addpriority(priority);
+      Provider.of<HiveDataNotifier>(context, listen: false)
+          .addPriority(priority);
       selectedpriority = priority;
       prioritycontroller.clear();
     }
 
     return AlertDialog(
-        title: Text("Alert"),
+        title: index == null ? Text("Add Item") : Text("Edit Item"),
         content: Container(
           padding: EdgeInsets.all(10),
           width: 400,
-          height: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //NAME BOX
-              SizedBox(
-                  width: double.infinity,
-                  child: TextField(
-                    decoration: InputDecoration(hintText: "Name of item"),
-                    controller: nameController,
-                  )),
-
-              //LOCATION AND DROPDOWN
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Location",
-                  ),
-                  CustomDropdown(
-                      list: locations,
-                      onTextChanged: onchangeLocation,
-                      new_dropdown_item_controller: locationsController,
-                      selectedvalue: selectedlocation)
-                ],
-              ),
-
-              //PRIORTIY AND DROPDOWN
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Priority",
-                  ),
-                  CustomDropdown(
-                      list: priorities,
-                      onTextChanged: onchangePriority,
-                      new_dropdown_item_controller: prioritycontroller,
-                      selectedvalue: selectedpriority),
-                ],
-              ),
-
-              //QUANTITY
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text("Quantity"),
-                Quantity(
-                  quantity: quantity!,
-                  quantityController: quantityController,
-                  changeQuantity: changeQuantity,
+          height: 300,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //NAME BOX
+                SizedBox(
+                    width: double.infinity,
+                    child: TextField(
+                      decoration: InputDecoration(
+                          hintText: "Name of item",
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).primaryColor))),
+                      controller: nameController,
+                    )),
+                SizedBox(
+                  height: 10,
                 ),
-              ]),
 
-              //PRICE
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Price"),
-                  SizedBox(
-                      width: 50,
-                      child: TextField(
-                        controller: priceController,
-                        decoration: InputDecoration(
-                            labelText: "Price",
-                            labelStyle: TextStyle(fontSize: 13)),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          setState(() {
-                            price = double.tryParse(value) ?? 0.0;
-                          });
-                        },
-                      )),
-                ],
-              )
-            ],
+                //LOCATION AND DROPDOWN
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Location",
+                    ),
+                    CustomDropdown(
+                        list: locations,
+                        onTextChanged: onchangeLocation,
+                        new_dropdown_item_controller: locationsController,
+                        selectedvalue: selectedlocation)
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+
+                //PRIORTIY AND DROPDOWN
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Priority",
+                    ),
+                    DropdownButton<String>(
+                      value: selectedpriority,
+                      items: priorities.map((listItem) {
+                        return DropdownMenuItem(
+                            value: listItem, child: Text(listItem));
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedpriority = newValue!;
+                          /*                 widget.onTextChanged(newValue!);
+                     */
+                          prioritycontroller.text = newValue;
+                        });
+                      },
+                    )
+                    /*    CustomDropdown(
+                        list: priorities,
+                        onTextChanged: onchangePriority,
+                        new_dropdown_item_controller: prioritycontroller,
+                        selectedvalue: selectedpriority), */
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+
+                //QUANTITY
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Quantity"),
+                      Quantity(
+                        quantity: quantity,
+                        quantityController: quantityController,
+                        changeQuantity: changeQuantity,
+                      ),
+                    ]),
+                SizedBox(
+                  height: 10,
+                ),
+
+                //PRICE
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Price"),
+                    SizedBox(
+                        width: 50,
+                        child: TextField(
+                          controller: priceController,
+                          decoration: InputDecoration(
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context).primaryColor)),
+                              labelText: "Price",
+                              labelStyle: TextStyle(fontSize: 13)),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              price = double.tryParse(value) ?? 0.0;
+                            });
+                          },
+                        )),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () {
               if (nameController.text.isNotEmpty) {
-                //if there is no inputed index, add the new item to the item list as usual
                 if (index == null) {
+                  if (names.contains(nameController.text)) {
+                    _showSnackBar(context, nameController.text);
+                  } else {
+                    final newItem = Item_Model(
+                        id: boxLength,
+                        name: nameController.text,
+                        quantity: quantity,
+                        price: price,
+                        location: selectedlocation,
+                        priority: selectedpriority);
+                    Provider.of<HiveDataNotifier>(context, listen: false)
+                        .setData(boxLength, newItem);
+                  }
+                } else {
                   final newItem = Item_Model(
+                      isInShoppingCart: item!.isInShoppingCart,
+                      id: index!,
                       name: nameController.text,
                       quantity: quantity,
+                      quantitytoBuy: quantitytoBuy ?? 1,
                       price: price,
                       location: selectedlocation,
                       priority: selectedpriority);
-                  Provider.of<ItemlistModel>(context, listen: false)
-                      .addItem(newItem);
-                } else // if there is index, update item at that index
-                {
-                  Provider.of<ItemlistModel>(context, listen: false)
-                      .updateItemAtIndex(index!, nameController.text, quantity,
-                          price, selectedlocation, selectedpriority);
+                  Provider.of<HiveDataNotifier>(context, listen: false)
+                      .setData(index!, newItem);
                 }
 
                 Navigator.of(context).pop();

@@ -8,14 +8,16 @@ class AddButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
         style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(const Color(0xffFF6315)),
+            backgroundColor: WidgetStateProperty.all(
+              Theme.of(context).primaryColor,
+            ),
             iconColor: WidgetStateProperty.all(Colors.white),
             padding: WidgetStateProperty.all(const EdgeInsets.all(20))),
         onPressed: () {
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return DialogBox();
+                return const DialogBox();
               });
         },
         label: const Icon(Icons.add));
