@@ -16,19 +16,23 @@ class ItemlistAdapter extends TypeAdapter<Item_list> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Item_list().._userLocations = (fields[2] as List).cast<String>();
+    return Item_list()
+      .._userLocations = (fields[2] as List).cast<String>()
+      .._itemCount = fields[3] as int;
   }
 
   @override
   void write(BinaryWriter writer, Item_list obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj._defaultLocations)
       ..writeByte(1)
       ..write(obj._priorities)
       ..writeByte(2)
-      ..write(obj._userLocations);
+      ..write(obj._userLocations)
+      ..writeByte(3)
+      ..write(obj._itemCount);
   }
 
   @override

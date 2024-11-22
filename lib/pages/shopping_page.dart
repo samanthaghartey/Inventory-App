@@ -2,6 +2,7 @@
 
 import 'package:fitness/hive/hive_data_notifier.dart';
 import 'package:fitness/models/item_model.dart';
+import 'package:fitness/widgets/locations_list.dart';
 
 import 'package:fitness/widgets/searchbar.dart';
 import 'package:fitness/widgets/shopping_item_container.dart';
@@ -20,9 +21,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
   Widget build(BuildContext context) {
     List<Item_Model> essentialItems =
         Provider.of<HiveDataNotifier>(context).essentials;
+    essentialItems.sort((a, b) => a.name.compareTo(b.name));
 
     List<Item_Model> optionalItems =
         Provider.of<HiveDataNotifier>(context).optionals;
+    optionalItems.sort((a, b) => a.name.compareTo(b.name));
 
     double totalPrice =
         Provider.of<HiveDataNotifier>(context, listen: false).totalCost();
@@ -30,6 +33,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     return Scaffold(
       body: Consumer<HiveDataNotifier>(
           builder: (context, hiveDataNotifier, child) {
+        List<String> locations = hiveDataNotifier.locations;
         return Padding(
             padding: EdgeInsets.all(12),
             child: SingleChildScrollView(
@@ -41,10 +45,10 @@ class _ShoppingPageState extends State<ShoppingPage> {
                     ),
 
                     //LOCATIONS
-                    /*  SizedBox(
-                        height: 60,
+                    SizedBox(
+                        height: 40,
                         width: double.infinity,
-                        child: LocationsList(locations: locations)), */
+                        child: LocationsList(locations: locations)),
                     SizedBox(
                       height: 20,
                     ),
@@ -90,7 +94,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                     itemCount: essentialItems.length,
                                     itemBuilder: (context, index) {
                                       return ShoppingItemContainer(
-                                          index: essentialItems[index].id,
                                           item: essentialItems[index]);
                                     })),
                       ],
@@ -129,7 +132,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                     itemCount: optionalItems.length,
                                     itemBuilder: (context, index) {
                                       return ShoppingItemContainer(
-                                          index: optionalItems[index].id,
                                           item: optionalItems[index]);
                                     })),
                       ],
@@ -176,7 +178,7 @@ class noItemWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(8)),
-        color: Theme.of(context).primaryColorLight,
+        color: Colors.white,
       ),
       child: Center(child: Text("No items yet")),
     );

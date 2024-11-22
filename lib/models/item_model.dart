@@ -26,7 +26,7 @@ class Item_Model {
   @HiveField(8)
   double get priceToBuy => quantitytoBuy * price;
   @HiveField(9)
-  bool isInShoppingCart = false;
+  bool isInShoppingCart = true;
 
   Item_Model(
       {required this.name,
@@ -36,7 +36,7 @@ class Item_Model {
       required this.priority,
       this.type = "",
       required this.id,
-      this.isInShoppingCart = false,
+      this.isInShoppingCart = true,
       this.quantitytoBuy = 0}) {
     _items.add(this);
     itemCount++;

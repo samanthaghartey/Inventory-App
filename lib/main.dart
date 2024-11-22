@@ -8,21 +8,34 @@ import 'package:provider/provider.dart';
 import "package:hive_flutter/hive_flutter.dart";
 
 void main() async {
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Container(
+      width: 200,
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+      color: Color(0xffFF6315),
+      alignment: Alignment.center,
+      child: Text(
+          "Oops, there was a little error :(\n. Please close the dialog box and try again ",
+          style: TextStyle(color: Colors.white, fontSize: 12)),
+    );
+  };
+
   await Hive.initFlutter();
   Hive.registerAdapter(ItemModelAdapter());
   Hive.registerAdapter(ItemlistAdapter());
   boxItems = await Hive.openBox<Item_Model>("itemBox");
   boxLists = await Hive.openBox<Item_list>("itemListsBox");
+  idBox = await Hive.openBox<int>("idBox");
 
   runApp(ChangeNotifierProvider(
-      create: (_) => HiveDataNotifier(boxItems, boxLists),
+      create: (_) => HiveDataNotifier(boxItems, boxLists, idBox),
       child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

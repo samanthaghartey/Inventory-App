@@ -23,7 +23,6 @@ class _CustomDropdownState extends State<CustomDropdown> {
   @override
   void initState() {
     super.initState();
-    widget.new_dropdown_item_controller.text = widget.selectedvalue ?? '';
   }
 
   @override
@@ -44,6 +43,9 @@ class _CustomDropdownState extends State<CustomDropdown> {
               onSubmitted: widget.onTextChanged),
         ),
         DropdownButton<String>(
+            menuMaxHeight: 200,
+            iconEnabledColor: Theme.of(context).primaryColor,
+            borderRadius: BorderRadius.circular(8),
             value: widget.selectedvalue,
             items: widget.list.map((listItem) {
               return DropdownMenuItem(value: listItem, child: Text(listItem));

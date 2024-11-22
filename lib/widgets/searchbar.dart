@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:fitness/models/itemlist_model.dart';
+import 'package:fitness/hive/hive_data_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,8 +14,8 @@ class Searchbar extends StatelessWidget {
       child: Container(
         child: TextField(
           onChanged: (value) {
-            Provider.of<ItemlistModel>(context, listen: false)
-                .searchList(value);
+            Provider.of<HiveDataNotifier>(context, listen: false)
+                .searchList(value.toLowerCase());
           },
           cursorColor: Theme.of(context).primaryColor,
           decoration: InputDecoration(

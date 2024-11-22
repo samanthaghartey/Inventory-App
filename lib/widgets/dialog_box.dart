@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 class DialogBox extends StatefulWidget {
   final String name;
-  final String? toIdentify;
+
   final String selectedpriority;
   final double price;
   final String selectedlocation;
@@ -27,7 +27,6 @@ class DialogBox extends StatefulWidget {
       this.selectedpriority = "Essential",
       this.price = 0,
       this.index,
-      this.toIdentify,
       this.quantitytoBuy,
       this.quantity = 1});
 
@@ -37,7 +36,7 @@ class DialogBox extends StatefulWidget {
 
 class _DialogBoxState extends State<DialogBox> {
   late String name;
-  late String? toIdentify;
+
   late String selectedpriority;
   late double price;
   late String selectedlocation;
@@ -68,7 +67,6 @@ class _DialogBoxState extends State<DialogBox> {
   void initState() {
     super.initState();
     name = widget.name;
-    toIdentify = widget.toIdentify;
     selectedpriority = widget.selectedpriority;
     price = widget.price;
     selectedlocation = widget.selectedlocation;
@@ -105,19 +103,26 @@ class _DialogBoxState extends State<DialogBox> {
   Widget build(BuildContext context) {
     List<String> locations = Provider.of<HiveDataNotifier>(context).locations;
     List<String> priorities = Provider.of<HiveDataNotifier>(context).priorities;
-    int boxLength = Provider.of<HiveDataNotifier>(context).getBox.length;
-    Box box = Provider.of<HiveDataNotifier>(context).getBox;
-    List<String> names = box.values.map((item) => item.name as String).toList();
+    Box idBox = Provider.of<HiveDataNotifier>(context).getidBox;
+
+    List<Item_Model> boxItems =
+        Provider.of<HiveDataNotifier>(context).getBoxItems;
+
+    int itemCount = Provider.of<HiveDataNotifier>(context).getNextId(idBox);
+
+    List<String> names =
+        boxItems.map((item) => item.name.toLowerCase()).toList();
 
     void onchangeLocation(String location) {
       location = location.replaceFirst(location[0], location[0].toUpperCase());
+      locationsController.text = location;
+
       Provider.of<HiveDataNotifier>(context, listen: false)
           .addLocation(location);
 
       setState(() {
         selectedlocation = location;
       });
-      locationsController.clear();
     }
 
     void onchangePriority(String priority) {
@@ -130,7 +135,7 @@ class _DialogBoxState extends State<DialogBox> {
     return AlertDialog(
         title: index == null ? Text("Add Item") : Text("Edit Item"),
         content: Container(
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.all(5),
           width: 400,
           height: 300,
           child: SingleChildScrollView(
@@ -182,6 +187,7 @@ class _DialogBoxState extends State<DialogBox> {
                       "Priority",
                     ),
                     DropdownButton<String>(
+                      iconEnabledColor: Theme.of(context).primaryColor,
                       value: selectedpriority,
                       items: priorities.map((listItem) {
                         return DropdownMenuItem(
@@ -251,56 +257,65 @@ class _DialogBoxState extends State<DialogBox> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              if (nameController.text.isNotEmpty) {
-                if (index == null) {
-                  if (names.contains(nameController.text)) {
-                    _showSnackBar(context, nameController.text);
-                  } else {
-                    final newItem = Item_Model(
-                        id: boxLength,
-                        name: nameController.text,
-                        quantity: quantity,
-                        price: price,
-                        location: selectedlocation,
-                        priority: selectedpriority);
-                    Provider.of<HiveDataNotifier>(context, listen: false)
-                        .setData(boxLength, newItem);
-                  }
-                } else {
-                  final newItem = Item_Model(
-                      isInShoppingCart: item!.isInShoppingCart,
-                      id: index!,
-                      name: nameController.text,
-                      quantity: quantity,
-                      quantitytoBuy: quantitytoBuy ?? 1,
-                      price: price,
-                      location: selectedlocation,
-                      priority: selectedpriority);
-                  Provider.of<HiveDataNotifier>(context, listen: false)
-                      .setData(index!, newItem);
-                }
-
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text(
-              "Add Item",
-              style: TextStyle(
-                color: Color(0xffFF6315),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text("Close",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Theme.of(context).primaryColor,
+                    )),
               ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: Text("Close",
-                style: TextStyle(
-                  color: Color(0xffFF6315),
-                )),
-          ),
+              TextButton(
+                onPressed: () {
+                  if (nameController.text.isNotEmpty) {
+                    if (index == null) {
+                      if (names.contains(nameController.text)) {
+                        _showSnackBar(context, nameController.text);
+                      } else {
+                        final newItem = Item_Model(
+                            id: itemCount,
+                            name: nameController.text.replaceFirst(
+                                nameController.text[0],
+                                nameController.text[0].toUpperCase()),
+                            quantity: quantity,
+                            price: price,
+                            location: selectedlocation,
+                            priority: selectedpriority);
+                        Provider.of<HiveDataNotifier>(context, listen: false)
+                            .setData(itemCount, newItem);
+                      }
+                    } else {
+                      final newItem = Item_Model(
+                          isInShoppingCart: item!.isInShoppingCart,
+                          id: item!.id,
+                          name: nameController.text,
+                          quantity: quantity,
+                          quantitytoBuy: quantitytoBuy ?? 1,
+                          price: price,
+                          location: selectedlocation,
+                          priority: selectedpriority);
+                      Provider.of<HiveDataNotifier>(context, listen: false)
+                          .setData(item!.id, newItem);
+                    }
+
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Text(
+                  "Add Item",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+            ],
+          )
         ]);
   }
 }

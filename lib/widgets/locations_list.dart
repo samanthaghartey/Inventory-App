@@ -68,6 +68,10 @@ class _LocationsListState extends State<LocationsList> {
               itemBuilder: (context, index) {
                 bool isActive = selectedIndex == index;
                 return GestureDetector(
+                  /*  onDoubleTap: () {
+                    Provider.of<HiveDataNotifier>(context, listen: false)
+                        .removeLocation(widget.locations[index]);
+                  }, */
                   onTap: () {
                     Provider.of<HiveDataNotifier>(context, listen: false)
                         .filteredList(widget.locations[index]);
