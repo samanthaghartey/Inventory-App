@@ -1,5 +1,5 @@
 
-## ** Inventory Tracker App**
+# **Inventory Tracker App**
 
 Hello!
 
